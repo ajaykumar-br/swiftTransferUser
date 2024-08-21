@@ -11,23 +11,23 @@ const signupSchema = z.object({
     username: z.string().email(),
     password: z.string(),
     firstName: z.string(),
-    lastName: z.string(),
+    lastName: z.string()
 })
 
 router.post('/signup', async (req, res) => {
     const { success } = signupSchema.safeParse(req.body);
 
-    if(!success) {
+    if (!success) {
         return res.status(411).json({
             msg: 'Email already taken / Incorrect inputs'
         })
     }
 
-    const user = User.findOne({
+    const user = await User.findOne({
         username: req.body.username
     })
 
-    if(user) {
+    if (user) {
         return res.json({
             msg: 'Email already taken / Incorrect inputs'
         })
@@ -42,7 +42,7 @@ router.post('/signup', async (req, res) => {
 
     const userAccount = await Account.create({
         userId: dbUser._id,
-        balance: 1+Math.random()*10000
+        balance: 1 + Math.random() * 10000
     });
 
     const token = jwt.sign({
@@ -63,7 +63,7 @@ const signinBody = z.object({
 router.post('/signin', async (req, res) => {
     const { success } = signinBody.safeParse(req.body);
 
-    if(!success) {
+    if (!success) {
         return res.status(411).json({
             msg: 'Incorrect Inputs'
         })
@@ -74,7 +74,7 @@ router.post('/signin', async (req, res) => {
         password: req.body.password
     });
 
-    if(user) {
+    if (user) {
         const token = jwt.sign({
             userId: user._id
         }, JWT_SECRET);
@@ -82,7 +82,7 @@ router.post('/signin', async (req, res) => {
         res.json({
             token: token
         });
-        return ;
+        return;
     }
 
     res.status(411).json({
@@ -98,7 +98,7 @@ const updateBody = z.object({
 
 router.put('/', authMiddeware, async (req, res) => {
     const { success } = updateBody.safeParse(req.body);
-    if(!success) {
+    if (!success) {
         res.status(411).json({
             msg: 'Error while updating information'
         })
@@ -114,15 +114,17 @@ router.put('/', authMiddeware, async (req, res) => {
 })
 
 router.get('/bulk', authMiddeware, async (req, res) => {
-    const filter = req.params.filter;
+    const filter = req.params.filter || "";
 
     const users = await User.find({
         $or: [
-            {firstName: 
-                {"$regex": filter}
+            {
+                firstName:
+                    { "$regex": filter }
             },
-            {lastName: 
-                {"$regex": filter}
+            {
+                lastName:
+                    { "$regex": filter }
             }
         ]
     })
