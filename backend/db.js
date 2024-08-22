@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb://localhost:27017/patym');
+mongoose.connect('mongodb+srv://ajraj86ak:rnu5aC6V8NcbRGTJ@cluster0.fzz1dmb.mongodb.net/paytm');
 
 const userSchema = new mongoose.Schema({
     username: {

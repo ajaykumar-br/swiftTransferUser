@@ -1,9 +1,12 @@
+import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import axios from "axios";
 
 export const SendMoney = () => {
   const [searchParams] = useSearchParams();
   const id = searchParams.get("id");
   const name = searchParams.get("name");
+  const [amount, setAmount] = useState(0);
 
   return (
     <div className="flex justify-center h-screen bg-gray-100">
@@ -23,10 +26,7 @@ export const SendMoney = () => {
             </div>
             <div className="space-y-4">
               <div className="space-y-2">
-                <label
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  for="amount"
-                >
+                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                   Amount (in Rs)
                 </label>
                 <input
@@ -34,9 +34,36 @@ export const SendMoney = () => {
                   placeholder="Enter amount"
                   id="amount"
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  onChange={(e) => {
+                    setAmount(e.target.value);
+                  }}
                 />
               </div>
-              <button className="justify-center rounded-md text-sm font-medium ring-offset-background transition-colors h-10 px-4 py-2 w-full bg-green-500 text-white">
+              <button
+                onClick={() => {
+                  axios
+                    .post(
+                      "http://localhost:3000/api/v1/account/transfer",
+                      {
+                        amount,
+                        to: id,
+                      },
+                      {
+                        headers: {
+                          authorization:
+                            "Bearer " + localStorage.getItem("token"),
+                        },
+                      }
+                    )
+                    .then((response) => {
+                      console.log(response);
+                    })
+                    .catch((err) => {
+                      console.error(err);
+                    });
+                }}
+                className="justify-center rounded-md text-sm font-medium ring-offset-background transition-colors h-10 px-4 py-2 w-full bg-green-500 text-white"
+              >
                 Initiate Transfer
               </button>
             </div>
